@@ -29,7 +29,7 @@ public class EmailService {
     private JavaMailSender emailSender;
 
     @Transactional
-    public ResponseEntity<Object> saveEmail(EmailRecordDto emailRecordDto) {
+    public ResponseEntity<Object> publishMessage(EmailRecordDto emailRecordDto) {
 
         var emailModel = new EmailModel();
 
@@ -56,7 +56,15 @@ public class EmailService {
         } catch (MailException e) {
             System.out.println(e.getMessage());
         } finally {
+            this.saveEmail(emailModel);
+        }
+    }
+
+    public void saveEmail(EmailModel emailModel) {
+        try {
             emailRepository.save(emailModel);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
         }
     }
 }

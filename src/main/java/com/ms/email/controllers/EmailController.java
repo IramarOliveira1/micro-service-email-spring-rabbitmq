@@ -18,7 +18,7 @@ public class EmailController {
 
     @PostMapping("/send-email")
     public ResponseEntity<Object> sendMail(@RequestBody EmailRecordDto emailRecordDto) {
-        return emailService.saveEmail(emailRecordDto);
+        return emailService.publishMessage(emailRecordDto);
     }
 
 }
