@@ -1,5 +1,7 @@
 package com.ms.email.producers;
 
+import java.util.ArrayList;
+
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,9 +19,14 @@ public class EmailProducer {
     @Value(value = "${broker.queue.email.name}")
     private String routingKey;
 
-    public void publishMessageEmail(EmailModel emailModel) {
-        var emailDto = new EmailRecordDto(emailModel.getEmail());
+    public void publishMessageEmail(ArrayList<EmailModel> emailModel) {
+        var emailDto = new EmailRecordDto(emailModel);
 
-        rabbitTemplate.convertAndSend("", routingKey, emailDto);
+        // for (int i = 0; i < emailDto.emails().size(); i++) {
+            // System.out.println();
+            rabbitTemplate.convertAndSend("", routingKey, emailDto);
+        // }
+
+
     }
 }

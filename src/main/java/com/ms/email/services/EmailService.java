@@ -2,7 +2,6 @@ package com.ms.email.services;
 
 import java.time.LocalDateTime;
 
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.MailException;
@@ -12,7 +11,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.ms.email.dtos.EmailRecordDto;
-import com.ms.email.models.EmailModel;
 import com.ms.email.producers.EmailProducer;
 import com.ms.email.repositories.EmailRepository;
 
@@ -31,38 +29,38 @@ public class EmailService {
     @Transactional
     public ResponseEntity<Object> publishMessage(EmailRecordDto emailRecordDto) {
 
-        var emailModel = new EmailModel();
-
-        BeanUtils.copyProperties(emailRecordDto, emailModel);
-
-        emailProducer.publishMessageEmail(emailModel);
+        emailProducer.publishMessageEmail(emailRecordDto.emails());
 
         return ResponseEntity.status(200).body("E-mail Enviado com sucesso!");
     }
 
     @Transactional
-    public void sendMail(EmailModel emailModel) {
+    public void sendMail(EmailRecordDto emailRecordDto) {
         try {
-            emailModel.setCreated_at(LocalDateTime.now());
-            emailModel.setEmail(emailModel.getEmail());
 
-            SimpleMailMessage message = new SimpleMailMessage();
+            for (int i = 0; i < emailRecordDto.emails().size(); i++) {
+                emailRecordDto.emails().get(i).setCreated_at(LocalDateTime.now());
 
-            message.setTo(emailModel.getEmail());
-            message.setSubject("E-mail recebido com sucesso!");
-            message.setText("Microservices enviar email java + spring boot");
+                SimpleMailMessage message = new SimpleMailMessage();
 
-            emailSender.send(message);
+                message.setTo(emailRecordDto.emails().get(i).getEmail());
+                message.setSubject("E-mail recebido com sucesso!");
+                message.setText("Microservices enviar email java + spring boot");
+
+                emailSender.send(message);
+            }
+
         } catch (MailException e) {
             System.out.println(e.getMessage());
         } finally {
-            this.saveEmail(emailModel);
+            this.saveEmail(emailRecordDto);
         }
     }
 
-    public void saveEmail(EmailModel emailModel) {
+    @Transactional
+    public void saveEmail(EmailRecordDto emailRecordDto) {
         try {
-            emailRepository.save(emailModel);
+            emailRepository.saveAll(emailRecordDto.emails());
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
