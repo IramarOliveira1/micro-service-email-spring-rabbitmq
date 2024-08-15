@@ -21,12 +21,6 @@ public class EmailProducer {
 
     public void publishMessageEmail(ArrayList<EmailModel> emailModel) {
         var emailDto = new EmailRecordDto(emailModel);
-
-        // for (int i = 0; i < emailDto.emails().size(); i++) {
-            // System.out.println();
-            rabbitTemplate.convertAndSend("", routingKey, emailDto);
-        // }
-
-
+        rabbitTemplate.convertAndSend("", routingKey, emailDto);
     }
 }
